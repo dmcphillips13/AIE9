@@ -45,21 +45,27 @@ You will be required to submit a link to your GitHub, as well as screenshots of 
 Please evaluate your system on the following questions:
 
 1. Explain the concept of object-oriented programming in simple terms to a complete beginner.
-    - Aspect Tested:
+    - Aspect Tested: `technical knowledge and ability to teach`
 2. Read the following paragraph and provide a concise summary of the key points…
-    - Aspect Tested:
+    - Aspect Tested: `summarization`
 3. Write a short, imaginative story (100–150 words) about a robot finding friendship in an unexpected place.
-    - Aspect Tested:
+    - Aspect Tested: `creativity`
 4. If a store sells apples in packs of 4 and oranges in packs of 3, how many packs of each do I need to buy to get exactly 12 apples and 9 oranges?
-    - Aspect Tested:
+    - Aspect Tested: `math and reasoning`
 5. Rewrite the following paragraph in a professional, formal tone…
-    - Aspect Tested:
+    - Aspect Tested: `paraphrasing / tone alignment`
 
 #### ❓Question #1:
 
 Do the answers appear to be correct and useful?
 ##### ✅ Answer:
+The answers are generally correct and helpful for the questions being asked. It should be noted that this is a chatbot with a mental health focus, so it ideally wouldn't be asked these types of questions.
 
+1. Accurate explanation of OOP with easy-to-follow examples
+2. Distills the important information from the article, removing the color
+3. Creative story from a short prompt - perhaps too creative, haven't heard of "song of servos" before
+4. Gives the correct answer
+5. Same content as original source using slightly different words; output reminds me of using a thesaurus to dress up my high school essays.
 ---
 
 #### 🏗️ Activity #2: Personal Vibe Checking Evals (Your Assistant Can Answer)
