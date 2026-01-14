@@ -271,16 +271,49 @@ Now test your assistant with questions that would require capabilities beyond ba
 - "What time should I leave for the airport?"
 
 ##### Your Prompts and Results:
-1. Prompt:
-   - Result:
-2. Prompt:
-   - Result:
+1. Prompt: `When should I go to the gym based on my schedule for tomorrow?`
+   - Result: `I can help you lock in a realistic gym window. Can you share a quick snapshot of your day tomorrow?`
+
+`- Fixed commitments with times (work/classes/appointments)`
+`- Wake-up and target bedtime`
+`- Commute time to/from the gym and gym hours`
+`- How long you want to work out (and if you need shower time)`
+`- When you usually have the most energy (morning, midday, evening)`
+`- Any must-avoid times (meetings, childcare, etc.)`
+
+`If you’d rather not list it all, here are two simple options that work for most people:`
+`- Morning: Go soon after waking, before the day gets hectic. Great for consistency; aim for a 45–60 min session.`
+`- Post-work: Go directly after work/school before going home. Good for stress relief and follow-through.`
+
+`Once you share your schedule, I’ll suggest the best 1–2 time slots and a quick plan to make it stick.`
+
+2. Prompt: `What time should I leave for Charlotte in order to make it to the comedy show I have tickets for?`
+   - Result: `Great question—planning your timing now will make the night feel a lot smoother. I can give you a precise leave-by time, I just need a few details:`
+`- Where you’re leaving from (neighborhood or city)`
+`- Venue name in Charlotte`
+`- Show date and start time`
+`- How you’re getting there (driving, rideshare, light rail)`
+`- Will you need to find parking or pick up tickets at will call?`
+
+`Rule of thumb if you want a quick answer now:`
+`- Aim to be at the venue/parking area 30–45 minutes before showtime (for parking, security, bathroom, and finding your seats).`
+`- Add your estimated travel time from a maps app.`
+`- Add a traffic cushion: +20–30% outside rush hour, +40–60% during rush hour or big-event nights.`
+
+`Example: If the show is at 8:00 pm and your maps app says 25 minutes, leave around 6:45–7:00 pm (25 min drive + ~20–30 min cushion + 30–45 min early arrival).`
+
+`Pro tips to reduce stress:`
+`- Check live traffic and parking 2–3 hours before you go; set a “latest leave time” reminder.`
+`- If driving, pre-select a parking garage and save the walking route.`
+`- If using rideshare, plan for surge times by booking a bit earlier.`
+
+`Share your details and I’ll give you a specific leave-by time.`
 
 #### ❓Question #3:
 
 What are some limitations of your application?
 ##### ✅ Answer:
-
+The chatbot does not know my schedule (when I start work, when the comedy show is) so can only answer with "best practices". While it gives good advice for how to approach these questions, it is unable to give specific answers. The chatbot would likely need access to my schedule, destinations, and real time traffic info to answer these with specific answers.
 ---
 
 This "vibe check" now serves as a baseline, of sorts, to help understand what holes your application has.
