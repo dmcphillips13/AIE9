@@ -1,5 +1,6 @@
 import os
-from typing import List
+import re
+from typing import List, Union
 
 
 class BaseFileLoader:
@@ -70,6 +71,119 @@ class PdfFileLoader(BaseFileLoader):
             raise ValueError(
                 f"Error reading PDF file {self.path}: {str(e)}"
             )
+
+
+class BaseContentLoader:
+    def __init__(self, urls: Union[str, List[str]]):
+        self.urls = urls if isinstance(urls, list) else [urls]
+        self.documents = []
+
+    def load_documents(self) -> List[str]:
+        for url in self.urls:
+            try:
+                self.extract_content(url)
+            except Exception as e:
+                print(f"Warning: Failed to extract content from {url}: {str(e)}")
+        return self.documents
+
+    def extract_content(self, url: str):
+        raise NotImplementedError("Subclasses must implement extract_content()")
+
+
+class YouTubeLoader(BaseContentLoader):
+    def extract_content(self, url: str):
+        from youtube_transcript_api import YouTubeTranscriptApi
+
+        video_id = self._extract_video_id(url)
+        if not video_id:
+            raise ValueError(f"Invalid YouTube URL: {url}")
+
+        try:
+            api = YouTubeTranscriptApi()
+            fetched_transcript = api.fetch(video_id, languages=['en'])
+            transcript_data = fetched_transcript.to_raw_data()
+
+            transcript_text = " ".join([entry["text"] for entry in transcript_data])
+            self.documents.append(transcript_text)
+        except Exception as e:
+            raise ValueError(
+                f"Error fetching transcript for video {video_id}: {str(e)}. "
+                "The video may not have transcripts available."
+            )
+
+    def _extract_video_id(self, url: str) -> str:
+        pattern = r"(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)"
+        match = re.search(pattern, url)
+        return match.group(1) if match else ""
+
+
+class PodcastLoader(BaseContentLoader):
+    def __init__(self, urls: Union[str, List[str]]):
+        super().__init__(urls)
+        try:
+            import feedparser
+            self.feedparser = feedparser
+        except ImportError:
+            raise ImportError(
+                "feedparser is required for podcast support. Install it with: uv sync"
+            )
+
+    def extract_content(self, url: str):
+        feed = self.feedparser.parse(url)
+
+        if feed.bozo:
+            raise ValueError(f"Invalid RSS feed: {feed.bozo_exception}")
+
+        for entry in feed.entries:
+            content_parts = []
+            if hasattr(entry, "title"):
+                content_parts.append(f"Title: {entry.title}")
+
+            content = getattr(entry, "summary", None) or getattr(entry, "description", None)
+            if content:
+                content_parts.append(content)
+
+            if content_parts:
+                self.documents.append("\n".join(content_parts))
+
+
+class BlogLoader(BaseContentLoader):
+    def __init__(self, urls: Union[str, List[str]]):
+        super().__init__(urls)
+        try:
+            import requests
+            from bs4 import BeautifulSoup
+            self.requests = requests
+            self.BeautifulSoup = BeautifulSoup
+        except ImportError:
+            raise ImportError(
+                "beautifulsoup4 and requests are required for blog support. Install them with: uv sync"
+            )
+
+    def extract_content(self, url: str):
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+        response = self.requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+
+        soup = self.BeautifulSoup(response.content, "html.parser")
+
+        for element in soup(["script", "style", "nav", "header", "footer", "aside"]):
+            element.decompose()
+
+        article = (soup.find("article") or
+                   soup.find("main") or
+                   soup.find("div", class_=re.compile("article|content|post", re.I)))
+
+        if article:
+            text = article.get_text(separator="\n", strip=True)
+        else:
+            paragraphs = soup.find_all("p")
+            text = "\n".join([p.get_text(strip=True) for p in paragraphs if p.get_text(strip=True)])
+
+        if not text:
+            raise ValueError(f"No content found on page: {url}")
+
+        self.documents.append(text)
 
 
 class CharacterTextSplitter:
