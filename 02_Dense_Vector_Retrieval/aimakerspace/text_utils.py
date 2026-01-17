@@ -150,24 +150,15 @@ class PodcastLoader(BaseContentLoader):
 
 
 class BlogLoader(BaseContentLoader):
-    def __init__(self, urls: Union[str, List[str]]):
-        super().__init__(urls)
-        try:
-            import requests
-            from bs4 import BeautifulSoup
-            self.requests = requests
-            self.BeautifulSoup = BeautifulSoup
-        except ImportError:
-            raise ImportError(
-                "beautifulsoup4 and requests are required for blog support. Install them with: uv sync"
-            )
-
     def extract_content(self, url: str):
+        import requests
+        from bs4 import BeautifulSoup
+
         headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
-        response = self.requests.get(url, headers=headers, timeout=10)
+        response = requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()
 
-        soup = self.BeautifulSoup(response.content, "html.parser")
+        soup = BeautifulSoup(response.content, "html.parser")
 
         for element in soup(["script", "style", "nav", "header", "footer", "aside"]):
             element.decompose()
@@ -179,8 +170,7 @@ class BlogLoader(BaseContentLoader):
         if article:
             text = article.get_text(separator="\n", strip=True)
         else:
-            paragraphs = soup.find_all("p")
-            text = "\n".join([p.get_text(strip=True) for p in paragraphs if p.get_text(strip=True)])
+            text = "\n".join([p.get_text(strip=True) for p in soup.find_all("p") if p.get_text(strip=True)])
 
         if not text:
             raise ValueError(f"No content found on page: {url}")
