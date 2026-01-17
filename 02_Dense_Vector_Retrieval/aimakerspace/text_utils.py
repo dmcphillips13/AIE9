@@ -118,33 +118,35 @@ class YouTubeLoader(BaseContentLoader):
 
 
 class PodcastLoader(BaseContentLoader):
-    def __init__(self, urls: Union[str, List[str]]):
+    def __init__(self, urls: Union[str, List[str]], api_key: str):
         super().__init__(urls)
-        try:
-            import feedparser
-            self.feedparser = feedparser
-        except ImportError:
-            raise ImportError(
-                "feedparser is required for podcast support. Install it with: uv sync"
-            )
+        import requests
+        from groq import Groq
+        self.requests = requests
+        self.groq_client = Groq(api_key=api_key)
 
     def extract_content(self, url: str):
-        feed = self.feedparser.parse(url)
+        import tempfile
 
-        if feed.bozo:
-            raise ValueError(f"Invalid RSS feed: {feed.bozo_exception}")
+        print(f"Downloading audio from {url}...")
+        response = self.requests.get(url, stream=True, timeout=300)
+        response.raise_for_status()
 
-        for entry in feed.entries:
-            content_parts = []
-            if hasattr(entry, "title"):
-                content_parts.append(f"Title: {entry.title}")
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as temp_file:
+            for chunk in response.iter_content(chunk_size=8192):
+                temp_file.write(chunk)
+            temp_path = temp_file.name
 
-            content = getattr(entry, "summary", None) or getattr(entry, "description", None)
-            if content:
-                content_parts.append(content)
-
-            if content_parts:
-                self.documents.append("\n".join(content_parts))
+        print("Transcribing audio...")
+        try:
+            with open(temp_path, 'rb') as audio_file:
+                transcription = self.groq_client.audio.transcriptions.create(
+                    file=audio_file,
+                    model="whisper-large-v3",
+                )
+            self.documents.append(transcription.text)
+        finally:
+            os.remove(temp_path)
 
 
 class BlogLoader(BaseContentLoader):
