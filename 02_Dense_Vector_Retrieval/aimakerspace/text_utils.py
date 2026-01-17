@@ -2,38 +2,74 @@ import os
 from typing import List
 
 
-class TextFileLoader:
-    def __init__(self, path: str, encoding: str = "utf-8"):
+class BaseFileLoader:
+    def __init__(self, path: str, encoding: str = "utf-8", fileType: str = ".txt"):
         self.documents = []
         self.path = path
         self.encoding = encoding
+        self.fileType = fileType
 
     def load(self):
         if os.path.isdir(self.path):
             self.load_directory()
-        elif os.path.isfile(self.path) and self.path.endswith(".txt"):
+        elif os.path.isfile(self.path) and self.path.endswith(self.fileType):
             self.load_file()
         else:
             raise ValueError(
-                "Provided path is neither a valid directory nor a .txt file."
+                f"Provided path is neither a valid directory nor a {self.fileType} file."
             )
+
+    def load_directory(self):
+        for root, _, files in os.walk(self.path):
+            for file in files:
+                if file.endswith(self.fileType):
+                    file_path = os.path.join(root, file)
+                    # Temporarily set path to current file for load_file to work
+                    original_path = self.path
+                    self.path = file_path
+                    self.load_file()
+                    self.path = original_path
+
+    def load_file(self):
+        raise NotImplementedError("Subclasses must implement load_file()")
+
+    def load_documents(self):
+        self.load()
+        return self.documents
+
+
+class TextFileLoader(BaseFileLoader):
+    def __init__(self, path: str, encoding: str = "utf-8"):
+        super().__init__(path, encoding, fileType=".txt")
 
     def load_file(self):
         with open(self.path, "r", encoding=self.encoding) as f:
             self.documents.append(f.read())
 
-    def load_directory(self):
-        for root, _, files in os.walk(self.path):
-            for file in files:
-                if file.endswith(".txt"):
-                    with open(
-                        os.path.join(root, file), "r", encoding=self.encoding
-                    ) as f:
-                        self.documents.append(f.read())
 
-    def load_documents(self):
-        self.load()
-        return self.documents
+class PdfFileLoader(BaseFileLoader):
+    def __init__(self, path: str, encoding: str = "utf-8"):
+        super().__init__(path, encoding, fileType=".pdf")
+        try:
+            from pypdf import PdfReader
+            self.PdfReader = PdfReader
+        except ImportError:
+            raise ImportError(
+                "pypdf is required for PDF support. Install it with: uv sync"
+            )
+
+    def load_file(self):
+        try:
+            reader = self.PdfReader(self.path)
+            text_content = []
+            for page in reader.pages:
+                text_content.append(page.extract_text())
+            combined_text = "\n".join(text_content)
+            self.documents.append(combined_text)
+        except Exception as e:
+            raise ValueError(
+                f"Error reading PDF file {self.path}: {str(e)}"
+            )
 
 
 class CharacterTextSplitter:
