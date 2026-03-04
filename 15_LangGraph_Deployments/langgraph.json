@@ -1,11 +1,14 @@
 {
   "version": 1,
-  "dependencies": ["."],
+  "dependencies": [
+    "."
+  ],
   "env": ".env",
   "python_version": "3.13",
   "graphs": {
     "simple_agent": "app.graphs.simple_agent:graph",
-    "agent_with_helpfulness": "app.graphs.agent_with_helpfulness:graph"
+    "agent_with_helpfulness": "app.graphs.agent_with_helpfulness:graph",
+    "summarizer": "app.graphs.summarizer:graph"
   },
   "assistants": {
     "agent": {
@@ -17,7 +20,11 @@
       "graph_id": "agent_with_helpfulness",
       "name": "Agent with Helpfulness Check",
       "description": "Agent that uses tools and performs a helpfulness check with loop limit."
+    },
+    "summarizer": {
+      "graph_id": "summarizer",
+      "name": "Summarizer",
+      "description": "Agent that summarizes the response of the agent."
     }
   }
 }
-

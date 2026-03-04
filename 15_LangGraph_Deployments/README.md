@@ -96,6 +96,7 @@ The role of `langgraph.json` is to note the graphs from our source code that wil
 Create your own agent graph! Build a new graph in `app/graphs/` with a custom evaluation node (e.g., a vibe checker, a fact verifier, a summarizer — get creative!). Register it in `langgraph.json`, serve it with `uv run langgraph dev`
 
 ##### Answer:
+[Summarizer Agent Graph](app/graphs/summarizer.py)
 
 
 
