@@ -69,14 +69,27 @@ Have fun!
 What is the key architectural difference between the `simple_agent` and `agent_with_helpfulness` graphs? Specifically, explain how the helpfulness evaluation loop works and what mechanisms are in place to prevent it from running indefinitely.
 
 ##### Answer:
-
+Both the `simple_agent` and `agent_with_helpfulness` contain an agent node and a tool node, but the `agent_with_helpfulness` additionally contains a helpfulness node. While the `simple_agent` conditionally moves from the agent node to the tools node or the end node depending on if tools are needed, the `agent_with_helpfulness` will conditionally route to the tool node or the helpfulness node depending on if tools are needed. The helpfulness node determines whether a response is helpful - if it is, it goes to the end node, and if it is not it returns to the agent node, continuing the cycle. If there are more than 10 messages, the helpfulness node will go directly to the end node, preventing an infinite loop.
 
 
 #### Question 2:
 What is the role of `langgraph.json` in the LangGraph Deployments? Describe each of its key fields and how the platform uses this file to discover and serve your graphs.
 
 ##### Answer:
+The role of `langgraph.json` is to note the graphs from our source code that will be served when deployed. Running `langgraph dev` reads the file and registers the named assistants before exposing these agents as API endpoints.
 
+**Key Fields**
+`version`: schema version
+
+`dependencies`: python packages to install
+
+`env`: path to the environment file to load
+
+`python_version`: python version to use
+
+`graphs`: assigns an exported compiled graph (value) to a graph's name (key)
+
+`assistants`: defines agents, setting the `graph_id` to one of the defined graphs in the `graphs` field in the file in addition to a name and description
 
 
 #### Activity #1:
